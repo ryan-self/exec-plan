@@ -126,5 +126,22 @@ Events
 Public Actions
 ==============
 
+- **add** - adds a 'step' command to the execution plan.
+    - The following parameters are expected:
+        - **[preLogic]** *Function*     - a function to call before the command is executed, but after previous
+                                          command finished.
+            - The preLogic function should expect the following parameters:
+                - **stdout** *String* - the stdout of the previously-executed step.
+        - **command** *String*          - command to be executed.
+        - **[options]** *Object*        - child_process.exec options. See: child_process.exec API.
+        - **[errorHandler]** *Function* - a function to call if the command produces an error.
+            - The errorHandler function should expect the following parameters:
+                - **error** *Error*   - js Error object that occurred during command execution.
+                - **stderr** *String* - the stderr of the command.
+            - The errorHandler function should return ```` false ```` if 'error' event should not be fired in
+              addition to this errorHandler.
+- **execute** - executes all added commands in the order in which they were added.
+    - This order will be enforced, such that each command will not execute until previous commands finish.
+    - Once this action finishes, the current execution plan will become empty.
 
 
