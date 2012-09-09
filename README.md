@@ -97,9 +97,9 @@ ExecPlan API
 Events
 ======
 
-- **'complete'** - fires when an entire execution plan's set of commands successfully execute. The following parameters
-                   will be given to the provided callback:
-    - stdout String - the stdout of the final command that successfully executed.
+- **'complete'** - fires when an entire execution plan's set of commands successfully execute.
+    - The following parameters will be given to the provided callback:
+        - **stdout** *String* - the stdout of the final command that successfully executed.
     - Example usage:
       ````javascript
       var ExecPlan = require('exec-plan').ExecPlan;
@@ -110,6 +110,18 @@ Events
       });
       ````
 - **'error'**
+    - The following parameters will be given to the provided callback:
+        - **error** *Error*   - the js Error object of the command that caused the problem.
+        - **stderr** *String* - the stderr of the command that caused the problem.
+    - Example usage:
+      ````javascript
+      var ExecPlan = require('exec-plan').ExecPlan;
+      var execPlan = new ExecPlan();
+
+      execPlan.on('error', function (error, stderr) {
+          // provide code to handle any command errors.
+      });
+      ````
 
 Public Actions
 ==============
