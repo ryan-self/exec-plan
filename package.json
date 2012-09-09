@@ -2,13 +2,22 @@
     "name":         "exec-plan",
     "version":      "0.0.1",
     "author":       "Ryan Self <stephen.ryan.self@gmail.com>",
-    "descriptions": "a module to provide sequenced execution of child procs",
+    "descriptions": "Node.js module to provide sequenced execution of child commands",
     "contributors": [{
         "name":  "Ryan Self",
         "email": "stephen.ryan.self@gmail.com"
     },{
         "name":  "AJ Engwall"
     }],
+    "keywords": [
+        "exec",
+        "synchronous",
+        "child process"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ryan-self/exec-plan.git"
+    },
     "engines": {
         "node": ">=0.6"
     },
