@@ -54,7 +54,7 @@ execPlan.add(function (stdout) {
 execPlan.add('some_command_that_does_not_exist', function (error, stderr) {
     console.log('ERROR: ' + stderr);
     console.log(error); // a standard js Error object
-    return false;  // return false to signal to execPlan that the 'error' should not be fired
+    return false;  // return false to signal to execPlan that the 'error' event should not be fired
 });
 
 // run the set of commands
