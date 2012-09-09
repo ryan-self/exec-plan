@@ -97,6 +97,20 @@ ExecPlan API
 Events
 ======
 
+- **'complete'** - fires when an entire execution plan's set of commands successfully execute. The following parameters
+                   will be given to the provided callback:
+    - stdout String - the stdout of the final command that successfully executed.
+    - Example usage:
+      ````javascript
+      var ExecPlan = require('exec-plan').ExecPlan;
+      var execPlan = new ExecPlan();
+
+      execPlan.on('complete', function (stdout) {
+          // provide code to do processing after all commands have successfully been executed.
+      });
+      ````
+- **'error'**
+
 Public Actions
 ==============
 
