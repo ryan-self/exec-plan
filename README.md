@@ -14,6 +14,7 @@ Examples
 
 var ExecPlan = require('exec-plan').ExecPlan;
 var execPlan = new ExecPlan();
+
 execPlan.add('ls -la');
 execPlan.add('grep "test" ./*');
 execPlan.add('ps -ef');
