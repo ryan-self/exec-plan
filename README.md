@@ -5,12 +5,12 @@ Provide the ability to run child process commands sequentially, with some fine-g
 dread pyramid of doom (i.e., callback indentation) >.<
 
 Easy Install
-============
+------------
 
 **sudo npm install exec-plan**
 
 Install with package.json setup
-===============================
+-------------------------------
 
 ````javascript
 /**
@@ -32,7 +32,7 @@ Install with package.json setup
         below the project's root directory
 
 Examples
-========
+--------
 
 ````javascript
 /**
@@ -87,3 +87,15 @@ execPlan.add('some_command_that_does_not_exist', function (error, stderr) {
 // run the set of commands
 execPlan.execute();
 ````
+
+ExecPlan API
+------------
+
+Events
+======
+
+Public Actions
+==============
+
+
+
