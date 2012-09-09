@@ -1,0 +1,16 @@
+{
+    "name":         "exec-plan",
+    "version":      "0.0.1",
+    "author":       "Ryan Self <stephen.ryan.self@gmail.com>",
+    "descriptions": "a module to provide sequenced execution of child procs",
+    "contributors": [{
+        "name":  "Ryan Self",
+        "email": "stephen.ryan.self@gmail.com"
+    },{
+        "name":  "AJ Engwall"
+    }],
+    "engines": {
+        "node": ">=0.6"
+    },
+    "main": "./main"
+}
