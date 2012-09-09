@@ -4,6 +4,33 @@ exec-plan
 Provide the ability to run child process commands sequentially, with some fine-grained control, all while avoiding the
 dread pyramid of doom (i.e., callback indentation) >.<
 
+Easy Install
+============
+
+**sudo npm install exec-plan**
+
+Install with package.json setup
+===============================
+
+````javascript
+/**
+ * package.json example
+ * package.json should be in the root of the project that will include 'exec-plan' as a dependency.
+ * use this method of installing 'exec-plan' module to put it under the project's local directory.
+ */
+{
+    "name": "my personal project",
+    "version": "0.0.1",
+    "dependencies": {
+        "exec-plan": "0.0.1"
+    }
+}
+````
+
+**sudo npm install**
+- Note: this will install all dependencies for "my personal project" in "node_modules" folder
+        below the project's root directory
+
 Examples
 ========
 
