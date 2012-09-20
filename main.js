@@ -232,9 +232,6 @@ ExecPlan.prototype.execute = function () {
 
     // start the execution process
     steps[0]();
-
-    // return plan to empty state
-    this.plan = [];
 };
 
 /* --- DEBUG HELP --- */
