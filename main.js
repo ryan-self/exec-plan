@@ -40,7 +40,7 @@ var isFunction = function (obj) {
  * @return Boolean - whether given object is an object
  */
 var isObject = function (obj) {
-    Object.prototype.toString.call(obj) === '[object Object]';
+    return (Object.prototype.toString.call(obj) === '[object Object]');
 };
 
 /**
