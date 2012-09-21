@@ -2,14 +2,8 @@
 
 var events = require('events');
 var exec   = require('child_process').exec;
-var util   = require('util');
-
-/* --- MODULE SCOPE VARIABLES --- */
-
-/**
- * Function with no body.
- */
-var emptyFn = (function () {});
+var util   = require('util');     // core node utilities
+var utils  = require('./utils');  // private project utilities
 
 /* --- PRIVATE UTILITY FUNCTIONS --- */
 
@@ -23,31 +17,10 @@ var emptyFn = (function () {});
  *                       @param stderr String
  */
 var handleError = function (execPlan, error, stderr, errorHandler) {
-    if (isFunction(errorHandler) && (errorHandler(error, stderr) !== false)) {
+    if (utils.isFunction(errorHandler) && (errorHandler(error, stderr) !== false)) {
         // fire event if errorHandler allows us
         execPlan.emit('error', error, stderr);
     }
-};
-
-/**
- * @return Boolean - whether given object is a function
- */
-var isFunction = function (obj) {
-    return typeof obj === 'function';
-};
-
-/**
- * @return Boolean - whether given object is an object
- */
-var isObject = function (obj) {
-    Object.prototype.toString.call(obj) === '[object Object]';
-};
-
-/**
- * @return Boolean - whether given object is a string
- */
-var isString = function (obj) {
-    return typeof obj === 'string';
 };
 
 /**
@@ -66,8 +39,9 @@ var isString = function (obj) {
 var makeFinalFn = (function (execPlan, errorHandler) {
     return function (error, stdout, stderr) {
         console.log(stdout);
-        if (error && isFunction(errorHandler)) handleError(execPlan, error, stderr, errorHandler);
-        else                                   execPlan.emit('complete', stdout);
+        if (error && utils.isFunction(errorHandler))
+             handleError(execPlan, error, stderr, errorHandler);
+        else execPlan.emit('complete', stdout);
     };
 });
 
@@ -104,14 +78,54 @@ var makeStep = function (execPlan, first, preLogic, command, options, errorHandl
 /* --- CONSTRUCTOR --- */
 
 /**
+ * @param config Object - configuration options for the ExecPlan: 
+ *                 {
+ *                     autoPrintOut: <Boolean> - whether to automatically print to stdout when
+ *                                               executing the ExecPlan,
+ *                     autoPrintErr: <Boolean> - whether to automatically print to stderr when
+ *                                               executing the ExecPlan
+ *                 } 
  * @return ExecPlan instance
  */
-ExecPlan = function () {
+ExecPlan = function (config) {
+    var hasConfig, autoPrintOut = true, autoPrintErr = true;
+
+    // short-hand variables
+    var isDefined = utils.isDefined;
+
+    // validate config object, if given
+    hasConfig = utils.isObject(config);
+
+    // initialize ExecPlan flags
+    if (hasConfig) {
+        autoPrintOut = (!isDefined(config.autoPrintOut) || config.autoPrintOut) ? true : false;
+        autoPrintErr = (!isDefined(config.autoPrintErr) || config.autoPrintErr) ? true : false;
+    }
+    this.autoPrintOut = autoPrintOut;
+    this.autoPrintErr = autoPrintErr;
+    
+    // initialize the underlying plan queue
     this.plan = [];
 };
 
 // set up ExecPlan to have the ability to manage custom events
 util.inherits(ExecPlan, events.EventEmitter);
+
+/* --- ACCESSORS --- */
+
+/**
+ * @return Boolean - whether stderr will be auto-printed when plan is executed.
+ */
+ExecPlan.prototype.willAutoPrintErr = function () {
+    return this.autoPrintErr;
+};
+
+/**
+ * @return Boolean - whether stdout will be auto-printed when plan is executed.
+ */
+ExecPlan.prototype.willAutoPrintOut = function () {
+    return this.autoPrintOut;
+};
 
 /* --- PLAN MANAGEMENT --- */
 
@@ -130,6 +144,10 @@ util.inherits(ExecPlan, events.EventEmitter);
 ExecPlan.prototype.add = function (preLogic, command, options, errorHandler) {
     var objToAdd = {};
     var preLogicGiven = false, optionsGiven = false, errorHandlerGiven = false;
+
+    // short-hand variables
+    var isFunction = utils.isFunction;
+    var isObject   = utils.isObject;
 
     /* --- HANDLE ARGUMENTS --- */
 
@@ -175,7 +193,7 @@ ExecPlan.prototype.add = function (preLogic, command, options, errorHandler) {
     /* ------------------------ */
 
     // validate required input
-    if (!isString(command)) {
+    if (!utils.isString(command)) {
         throw new TypeError('given command is not a string');
     }
 
@@ -198,6 +216,9 @@ ExecPlan.prototype.add = function (preLogic, command, options, errorHandler) {
 ExecPlan.prototype.execute = function () {
     var plan = this.plan, planLen, step, steps = [], idx, lastIdx;
     var preLogic, command, execOpts, errorHandler, errorHandlers = [], nextStep;
+
+    // short-hand variables
+    var emptyFn = utils.emptyFn;
 
     // return immediately on empty plan
     if (plan.length === 0) return;
@@ -232,6 +253,9 @@ ExecPlan.prototype.execute = function () {
 
     // start the execution process
     steps[0]();
+
+    // return plan to empty state
+    this.plan = [];
 };
 
 /* --- DEBUG HELP --- */

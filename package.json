@@ -21,5 +21,11 @@
     "engines": {
         "node": ">=0.6"
     },
-    "main": "./main"
+    "devDependencies": {
+        "nodeunit": ">=0.7.4"
+    },
+    "main": "./main",
+    "scripts": {
+        "test": "nodeunit test"
+    }
 }
