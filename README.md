@@ -5,7 +5,7 @@ Description
 -----------
 
 Provide the ability to run child process commands synchronously, with some fine-grained control, all while avoiding the
-dread pyramid of doom (i.e., callback indentation) >.<
+dreaded pyramid of doom (i.e., callback indentation) >.<
 
 Easy Install
 ------------
@@ -66,7 +66,7 @@ execPlan.on('error', function (error, stderr) {
     console.log('the stderr for the process that caused the problem is ' + stderr);
 });
 execPlan.on('complete', function (stdout) {
-    console.log('the entire execution plan finished, i.e., all child processes completed with no errors)');
+    console.log('the entire execution plan finished, i.e., all child processes completed with no errors');
     console.log('the stdout for the final step in the execution plan is ' + stdout);
 });
 
@@ -142,6 +142,5 @@ Public Actions
               addition to this errorHandler.
 - **execute** - executes all added commands in the order in which they were added.
     - This order will be enforced, such that each command will not execute until previous commands finish.
-    - Once this action finishes, the current execution plan will become empty.
 
 
