@@ -8,7 +8,16 @@ var utils  = require('./utils');  // private project utilities
 /* --- PRIVATE UTILITY FUNCTIONS --- */
 
 /**
- * Provide a common handler for errors.
+ * Do any work that needs to be done to finalize the execution process of an execution plan,
+ * irrespective of whether an error occurred.
+ * @param execPlan ExecPlan
+ */
+var finish = function (execPlan) {
+    execPlan.emit('finish');
+};
+
+/**
+ * Provide a common handler for errors that occur during the execution of a plan.
  * @param execPlan ExecPlan
  * @param error Error
  * @param stderr String
@@ -17,9 +26,9 @@ var utils  = require('./utils');  // private project utilities
  *                       @param stderr String
  */
 var handleError = function (execPlan, error, stderr, errorHandler) {
-    if (utils.isFunction(errorHandler) && (errorHandler(error, stderr) !== false)) {
+    if (!utils.isFunction(errorHandler) || (errorHandler(error, stderr) !== false)) {
         // fire event if errorHandler allows us
-        execPlan.emit('error', error, stderr);
+        execPlan.emit('execerror', error, stderr);
     }
 };
 
@@ -38,10 +47,14 @@ var handleError = function (execPlan, error, stderr, errorHandler) {
  */
 var makeFinalFn = (function (execPlan, errorHandler) {
     return function (error, stdout, stderr) {
-        console.log(stdout);
-        if (error && utils.isFunction(errorHandler))
-             handleError(execPlan, error, stderr, errorHandler);
-        else execPlan.emit('complete', stdout);
+        if (execPlan.willAutoPrintOut()) console.log(stdout);
+        if (error) {
+            if (execPlan.willAutoPrintErr()) console.error(stderr);
+            handleError(execPlan, error, stderr, errorHandler);
+        } else {
+            execPlan.emit('complete', stdout);
+        }
+        finish(execPlan);
     };
 });
 
@@ -61,12 +74,13 @@ var makeStep = function (execPlan, first, preLogic, command, options, errorHandl
     return function (error, stdout, stderr) {
         // log stdout/err
         if (!first) {  // a previous step's stdout/err is available
-            console.log(stdout);
-            if (stderr !== '') console.log('stderr: ' + stderr);
+            if (execPlan.willAutoPrintOut())           console.log(stdout);
+            if (error && execPlan.willAutoPrintErr())  console.error(stderr);
         }
 
         if (error) {  // error occurred during this step
             handleError(execPlan, error, stderr, errorHandler);
+            finish(execPlan);
         } else {  // this step successfully executed
             preLogic(stdout);
             if (options === null) exec(command, nextStep);
@@ -246,9 +260,9 @@ ExecPlan.prototype.execute = function () {
 
         // make the current step
         if (idx < lastIdx) nextStep = steps[idx+1]; // use already created step
-        else               nextStep = makeFinalFn(this, errorHandlers[idx-1]);
+        else               nextStep = makeFinalFn(this, errorHandlers[idx]);
         steps[idx] = makeStep(this, (idx === 0), preLogic, command, execOpts,
-                ((idx === 0) ? emptyFn : errorHandlers[idx-1]), nextStep);
+                errorHandlers[idx], nextStep);
     }
 
     // start the execution process
