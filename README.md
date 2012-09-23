@@ -94,6 +94,16 @@ execPlan.execute();
 ExecPlan API
 ------------
 
+Configuration
+=============
+
+- The constructor takes a configuration object that dictates various behaviors of the ExecPlan. The config object has
+    the following properties:
+    - **[autoPrintOut]** Boolean <*default*: **true**> - whether to automatically print to stdout when a command
+                                                         finishes while an execution plan is executing.
+    - **[autoPrintErr]** Boolean <*default*: **true**> - whether to automatically print to stderr when a command
+                                                         has an error while an execution plan is executing.
+
 Events
 ======
 
