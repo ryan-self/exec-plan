@@ -97,7 +97,8 @@ ExecPlan API
 Events
 ======
 
-- **'complete'** - fires when an entire execution plan's set of commands successfully execute.
+- **'complete'**
+    - Fires when an entire execution plan's set of commands successfully execute.
     - The following parameters will be given to the provided callback:
         - **stdout** *String* - the stdout of the final command that successfully executed.
     - Example usage:
@@ -110,6 +111,7 @@ Events
       });
       ````
 - **'execerror'**
+    - Fires whenever a command in an execution plan has an error while the plan is being executed.
     - The following parameters will be given to the provided callback:
         - **error** *Error*   - the js Error object of the command that caused the problem.
         - **stderr** *String* - the stderr of the command that caused the problem.
@@ -123,6 +125,18 @@ Events
       });
       ````
     - NOTE: Unfortunately, due to conflicts with the internals of node.js, this event cannot be named 'error'.
+- **'finish'**
+    - Fires after the conclusion of the execution of an execution plan, irrespective of whether an error occurred.
+    - The provided callback should expect no parameters.
+    - Example usage:
+      ````javascript
+      var ExecPlan = require('exec-plan').ExecPlan;
+      var execPlan = new ExecPlan();
+
+      execPlan.on('finish', function () {
+          // provide any code that should be called whenever an execution plan is stops executing.
+      });
+      ````
 
 Public Actions
 ==============
