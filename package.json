@@ -1,6 +1,6 @@
 {
     "name":         "exec-plan",
-    "version":      "0.0.1",
+    "version":      "0.0.2",
     "author":       "Ryan Self <stephen.ryan.self@gmail.com>",
     "descriptions": "Node.js module to provide sequenced execution of child commands",
     "contributors": [{
