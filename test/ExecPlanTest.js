@@ -90,7 +90,7 @@ exports.autoPrintOut_Err = {
         var errorSpy = sinon.spy();
         execPlan.add('ls');
         execPlan.on('finish', function () {
-            test.ok(!testCase.stdoutStub.called, 'stdout is not wrriten to');
+            test.ok(!testCase.stdoutStub.called, 'stdout is not written to');
             test.done();
         });
         execPlan.execute();
@@ -102,7 +102,7 @@ exports.autoPrintOut_Err = {
         execPlan.on('execerror', errorSpy);
         execPlan.on('finish', function () {
             test.ok(errorSpy.called, 'error event handler is called');
-            test.ok(!testCase.stderrStub.called, 'stderr is not wrriten to');
+            test.ok(!testCase.stderrStub.called, 'stderr is not written to');
             test.done();
         });
         execPlan.execute();
