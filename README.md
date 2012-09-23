@@ -103,13 +103,15 @@ Configuration
                                                          finishes while an execution plan is executing.
     - **[autoPrintErr]** Boolean <*default*: **true**> - whether to automatically print to stderr when a command
                                                          has an error while an execution plan is executing.
-````javascript
+- Example Usage:
+<pre lang="javascript"><code>
 var ExecPlan = require('exec-plan').ExecPlan;
 var execPlan = new ExecPlan({
-    autoPrintOut: false, 
-    autoPrintErr: true
+    autoPrintOut: false,  // don't automatically print stdout
+    autoPrintErr: true    // allow stderr to be automatically printed to;
+                          // NOTE: passing true to either option is not required, since it's the default.
 });
-````
+</code></pre>
 
 Events
 ======
