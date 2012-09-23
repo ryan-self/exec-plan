@@ -16,13 +16,14 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git://github.com/ryan-self/exec-plan.git"
+        "url":  "git://github.com/ryan-self/exec-plan.git"
     },
     "engines": {
         "node": ">=0.6"
     },
     "devDependencies": {
-        "nodeunit": ">=0.7.4"
+        "nodeunit": ">=0.7.4",
+        "sinon":    ">=1.4.2"
     },
     "main": "./main",
     "scripts": {
