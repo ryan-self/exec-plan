@@ -118,7 +118,7 @@ Events
       var ExecPlan = require('exec-plan').ExecPlan;
       var execPlan = new ExecPlan();
 
-      execPlan.on('error', function (error, stderr) {
+      execPlan.on('execerror', function (error, stderr) {
           // provide code to handle any command errors.
       });
       ````
@@ -139,7 +139,7 @@ Public Actions
             - The errorHandler function should expect the following parameters:
                 - **error** *Error*   - js Error object that occurred during command execution.
                 - **stderr** *String* - the stderr of the command.
-            - The errorHandler function should return ```` false ```` if 'error' event should not be fired in
+            - The errorHandler function should return ```` false ```` if 'execerror' event should not be fired in
               addition to this errorHandler.
 - **execute** - executes all added commands in the order in which they were added.
     - This order will be enforced, such that each command will not execute until previous commands finish.
