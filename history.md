@@ -7,7 +7,7 @@
   * add **finish** event
   * change **error** event to **execerror** due to a conflict with node.js *events* module
   * add initial suite of test cases for basic usage of ExecPlan
-  * include sinon.js dependency on test harness
+  * include sinon.js dev dependency for test harness
 
 0.0.1 / 2012-09-08
 ==================
