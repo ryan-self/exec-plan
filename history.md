@@ -6,3 +6,8 @@
     printing to stdout/err
   * add initial suite of test cases for basic usage of ExecPlan
   * include sinon.js dependency on test harness
+
+0.0.1 / 2012-09-08
+==================
+
+  * initial release
