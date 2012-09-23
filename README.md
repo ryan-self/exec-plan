@@ -25,7 +25,7 @@ Install with package.json setup
     "name": "my personal project",
     "version": "0.0.1",
     "dependencies": {
-        "exec-plan": "0.0.1"
+        "exec-plan": "0.0.2"
     }
 }
 ````
