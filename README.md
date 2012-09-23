@@ -60,7 +60,7 @@ var ExecPlan = require('exec-plan').ExecPlan;
 var execPlan = new ExecPlan();
 
 // attach event handlers to the events exposed by ExecPlan
-execPlan.on('error', function (error, stderr) {
+execPlan.on('execerror', function (error, stderr) {
     console.log('an error happened in one of the steps in execution plan');
     console.log(error);  // the error object for the process that caused the problem
     console.log('the stderr for the process that caused the problem is ' + stderr);
@@ -109,7 +109,7 @@ Events
           // provide code to do processing after all commands have successfully been executed.
       });
       ````
-- **'error'**
+- **'execerror'**
     - The following parameters will be given to the provided callback:
         - **error** *Error*   - the js Error object of the command that caused the problem.
         - **stderr** *String* - the stderr of the command that caused the problem.
@@ -122,6 +122,7 @@ Events
           // provide code to handle any command errors.
       });
       ````
+    - NOTE: Unfortunately, due to conflicts with the internals of node.js, this event cannot be named 'error'.
 
 Public Actions
 ==============
