@@ -20,11 +20,12 @@ var isArray    = utils.isArray;
 
 // GROUP: verification of correct construction
 exports.construction = {
-    'Passing in no config object makes autoPrintOut/Err true':
+    'Passing in no config object gives default to all config options':
             function (test) {
         var execPlan = new ExecPlan();
         test.ok(execPlan.willAutoPrintOut());
         test.ok(execPlan.willAutoPrintErr());
+        test.ok(execPlan.continuesOnError());
         test.done();
     },
     'Config {autoPrintOut:false} sets autoPrintOut/Err accordingly':
@@ -46,6 +47,11 @@ exports.construction = {
         var execPlan = new ExecPlan({autoPrintOut: false, autoPrintErr: false});
         test.equal(execPlan.willAutoPrintOut(), false, 'execPlan will not auto print stdout');
         test.equal(execPlan.willAutoPrintErr(), false, 'execPlan will not auto print stderr');
+        test.done();
+    },
+    'Config {continueOnError: false} sets continueOnError correctly': function (test) {
+        var execPlan = new ExecPlan({continueOnError: false});
+        test.equal(execPlan.continuesOnError(), false, 'execPlan will not contine on errors');
         test.done();
     }
 };
@@ -162,7 +168,7 @@ exports.errorHandlers = {
         });
         execPlan.execute();
     },
-    'Returning false in error handler prevents "error" event firing': function (test) {
+    'Returning false in error handler prevents "error" event from firing': function (test) {
         var execPlan = this.execPlan;
         var errorSpy = sinon.spy();
         var errorHandlerSpy = sinon.spy();
@@ -178,6 +184,95 @@ exports.errorHandlers = {
         });
         execPlan.execute();
     },
+    'Returning true in error handler prevents "error" event from firing': function (test) {
+        var execPlan = this.execPlan;
+        var errorSpy = sinon.spy();
+        var errorHandlerSpy = sinon.spy();
+        execPlan.add('./command_that_does_not_exist', function () {
+            errorHandlerSpy();
+            return true;
+        });
+        execPlan.on('execerror', errorSpy);
+        execPlan.on('finish', function () {
+            test.ok(errorHandlerSpy.called, 'individual error handler is called');
+            test.ok(!errorSpy.called, 'error event handler is not called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'Returning false in error handler stops plan, even when general policy is to continue':
+            function (test) {
+        var execPlan = this.execPlan;
+        var errorHandlerSpy = sinon.spy();
+        var secondCommandSpy = sinon.spy();
+        execPlan.add('./command_that_does_not_exist', function () {
+            errorHandlerSpy();
+            return false;
+        });
+        execPlan.add(secondCommandSpy, 'echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorHandlerSpy.called, 'individual error handler is called');
+            test.ok(!secondCommandSpy.called, 'second command is not called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'Returning true in error handler continues plan, even when general policy is to stop':
+            function (test) {
+        var execPlan = new ExecPlan({
+            autoPrintOut: false, 
+            autoPrintErr: false,
+            shouldContinueOnError: false
+        });
+        var errorHandlerSpy = sinon.spy();
+        var secondCommandSpy = sinon.spy();
+        execPlan.add('./command_that_does_not_exist', function () {
+            errorHandlerSpy();
+            return true;
+        });
+        execPlan.add(secondCommandSpy, 'echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorHandlerSpy.called, 'individual error handler is called');
+            test.ok(secondCommandSpy.called, 'second command is called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'No return from error handler continues plan when general policy is to continue':
+            function (test) {
+        var execPlan = this.execPlan;
+        var errorHandlerSpy = sinon.spy();
+        var secondCommandSpy = sinon.spy();
+        execPlan.add('./command_that_does_not_exist', function () {
+            errorHandlerSpy();
+        });
+        execPlan.add(secondCommandSpy, 'echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorHandlerSpy.called, 'individual error handler is called');
+            test.ok(secondCommandSpy.called, 'second command is not called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'No return from error handler stops plan when general policy is to stop': function (test) {
+        var execPlan = new ExecPlan({
+            autoPrintOut: false, 
+            autoPrintErr: false, 
+            shouldContinueOnError: false
+        });
+        var errorHandlerSpy = sinon.spy();
+        var secondCommandSpy = sinon.spy();
+        execPlan.add('./command_that_does_not_exist', function () {
+            errorHandlerSpy();
+        });
+        execPlan.add(secondCommandSpy, 'echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorHandlerSpy.called, 'individual error handler is called');
+            test.ok(!secondCommandSpy.called, 'second command is called');
+            test.done();
+        });
+        execPlan.execute();
+    },
     '2nd command has error handler called without 1st error handler called': function (test) {
         var execPlan = this.execPlan;
         var errorHandler1Spy = sinon.spy();
@@ -187,6 +282,95 @@ exports.errorHandlers = {
         execPlan.on('finish', function () {
             test.ok(!errorHandler1Spy.called, '1st error handler is not called');
             test.ok(errorHandler2Spy.called, '2nd error handler is called');
+            test.done();
+        });
+        execPlan.execute();
+    }
+};
+
+// GROUP: verification of error handlers for the 'execerror' event
+exports.execerrorHandlers = {
+    setUp: function (callback) {
+        this.execPlan = new ExecPlan({autoPrintOut: false, autoPrintErr: false});
+        callback();
+    },
+    tearDown: function (callback) {
+        delete this.execPlan;
+        callback();
+    },
+    'Returning false in error handler stops plan, even when general policy is to continue':
+            function (test) {
+        var execPlan = this.execPlan;
+        var errorSpy = sinon.spy();
+        var secondCommandSpy = sinon.spy();
+        execPlan.on('execerror', function () {
+            errorSpy();
+            return false;
+        });
+        execPlan.add('./command_that_does_not_exist');
+        execPlan.add(secondCommandSpy, 'echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorSpy.called, '"execerror" handler is called');
+            test.ok(!secondCommandSpy.called, 'second command is not called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'Returning true in error handler continues plan, even when general policy is to stop':
+            function (test) {
+        var execPlan = new ExecPlan({
+            autoPrintOut: false,
+            autoPrintErr: false,
+            shouldContinueOnError: false
+        });
+        var errorSpy = sinon.spy();
+        var secondCommandSpy = sinon.spy();
+        execPlan.on('execerror', function () {
+            errorSpy();
+            return true;
+        });
+        execPlan.add('./command_that_does_not_exist');
+        execPlan.add(secondCommandSpy, 'echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorSpy.called, '"execerror" handler is called');
+            test.ok(secondCommandSpy.called, 'second command is called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'No return from error handler stops plan when general policy is to stop': function (test) {
+        var execPlan = new ExecPlan({
+            autoPrintOut: false,
+            autoPrintErr: false,
+            shouldContinueOnError: false
+        });
+        var errorSpy = sinon.spy();
+        var secondCommandSpy = sinon.spy();
+        execPlan.on('execerror', function () {
+            errorSpy();
+        });
+        execPlan.add('./command_that_does_not_exist');
+        execPlan.add(secondCommandSpy, 'echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorSpy.called, '"execerror" handler is called');
+            test.ok(!secondCommandSpy.called, 'second command is not called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'No return from error handler continues plan when general policy is to continue':
+            function (test) {
+        var execPlan = this.execPlan;
+        var errorSpy = sinon.spy();
+        var secondCommandSpy = sinon.spy();
+        execPlan.on('execerror', function () {
+            errorSpy();
+        });
+        execPlan.add('./command_that_does_not_exist');
+        execPlan.add(secondCommandSpy, 'echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorSpy.called, '"execerror" handler is called');
+            test.ok(secondCommandSpy.called, 'second command is called');
             test.done();
         });
         execPlan.execute();
