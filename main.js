@@ -94,15 +94,20 @@ var makeStep = function (execPlan, first, preLogic, command, options, errorHandl
 /**
  * @param config Object - configuration options for the ExecPlan: 
  *                 {
- *                     autoPrintOut: <Boolean> - whether to automatically print to stdout when
- *                                               executing the ExecPlan,
- *                     autoPrintErr: <Boolean> - whether to automatically print to stderr when
- *                                               executing the ExecPlan
+ *                     autoPrintOut:    <Boolean> - whether to automatically print to stdout when
+ *                                                  executing the ExecPlan,
+ *                     autoPrintErr:    <Boolean> - whether to automatically print to stderr when
+ *                                                  executing the ExecPlan,
+ *                     continueOnError: <Boolean> - the general policy of whether to continue the
+ *                                                  execution of a plan when an error occurs in one
+ *                                                  of the associated commands.
+ *                                                  NOTE: This is overridable by the individual
+ *                                                        error and 'execerror' handlers.
  *                 } 
  * @return ExecPlan instance
  */
 ExecPlan = function (config) {
-    var hasConfig, autoPrintOut = true, autoPrintErr = true;
+    var hasConfig, autoPrintOut = true, autoPrintErr = true, continueOnError = true;
 
     // short-hand variables
     var isDefined = utils.isDefined;
@@ -114,9 +119,12 @@ ExecPlan = function (config) {
     if (hasConfig) {
         autoPrintOut = (!isDefined(config.autoPrintOut) || config.autoPrintOut) ? true : false;
         autoPrintErr = (!isDefined(config.autoPrintErr) || config.autoPrintErr) ? true : false;
+        continueOnError = (!isDefined(config.continueOnError) || config.continueOnError) 
+                ? true : false;
     }
     this.autoPrintOut = autoPrintOut;
     this.autoPrintErr = autoPrintErr;
+    this.continueOnError = continueOnError;
     
     // initialize the underlying plan queue
     this.plan = [];
@@ -126,6 +134,14 @@ ExecPlan = function (config) {
 util.inherits(ExecPlan, events.EventEmitter);
 
 /* --- ACCESSORS --- */
+
+/**
+ * @return Boolean - whether the plan continues execution in the event of an error in a command
+ *                   executed by the plan.
+ */
+ExecPlan.prototype.continuesOnError = function () {
+    return this.continueOnError;
+};
 
 /**
  * @return Boolean - whether stderr will be auto-printed when plan is executed.
