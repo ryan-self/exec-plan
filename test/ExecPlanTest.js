@@ -285,5 +285,57 @@ exports.errorHandlers = {
             test.done();
         });
         execPlan.execute();
+    },
+    'Of 4 commands, 1st command has error handler called': function (test) {
+        var execPlan = this.execPlan;
+        var errorHandler1Spy = sinon.spy();
+        execPlan.add('./command_that_does_not_exist', errorHandler1Spy);
+        execPlan.add('echo "hi"');
+        execPlan.add('echo "hi"');
+        execPlan.add('echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorHandler1Spy.called, '1st error handler is called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'Of 4 commands, 2nd command has error handler called': function (test) {
+        var execPlan = this.execPlan;
+        var errorHandler2Spy = sinon.spy();
+        execPlan.add('echo "hi"');
+        execPlan.add('./command_that_does_not_exist', errorHandler2Spy);
+        execPlan.add('echo "hi"');
+        execPlan.add('echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorHandler2Spy.called, '2nd error handler is called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'Of 4 commands, 3rd command has error handler called': function (test) {
+        var execPlan = this.execPlan;
+        var errorHandler3Spy = sinon.spy();
+        execPlan.add('echo "hi"');
+        execPlan.add('echo "hi"');
+        execPlan.add('./command_that_does_not_exist', errorHandler3Spy);
+        execPlan.add('echo "hi"');
+        execPlan.on('finish', function () {
+            test.ok(errorHandler3Spy.called, '3rd error handler is called');
+            test.done();
+        });
+        execPlan.execute();
+    },
+    'Of 4 commands, 4th command has error handler called': function (test) {
+        var execPlan = this.execPlan;
+        var errorHandler4Spy = sinon.spy();
+        execPlan.add('echo "hi"');
+        execPlan.add('echo "hi"');
+        execPlan.add('echo "hi"');
+        execPlan.add('./command_that_does_not_exist', errorHandler4Spy);
+        execPlan.on('finish', function () {
+            test.ok(errorHandler4Spy.called, '4th error handler is called');
+            test.done();
+        });
+        execPlan.execute();
     }
 };
