@@ -25,7 +25,7 @@ Install with package.json setup
     "name": "my personal project",
     "version": "0.0.1",
     "dependencies": {
-        "exec-plan": "0.0.2"
+        "exec-plan": "0.0.3"
     }
 }
 ````
@@ -88,6 +88,40 @@ execPlan.add('some_command_that_does_not_exist', function (error, stderr) {
 });
 
 // run the set of commands
+execPlan.execute();
+````
+
+````javascript
+/**
+ * An example showing error-handling
+ */
+var ExecPlan = require('exec-plan').ExecPlan;
+var execPlan = new ExecPlan({
+    autoPrintOut: true,    // stdout should be automatically printed when a command is executed
+    autoPrintErr: false,   // stderr should not be automatically printed to when a command has an error
+    continueOnError: true  // if an error occurs, the plan should continuing executing
+});
+
+execPlan.on('finish', function () {
+    console.log('The execution plan has finished executing. An error may or may not have occurred.');
+});
+
+execPlan.add('./command_that_does_not_exist', function (error, stderr) {
+    console.log('an error occurred with stderr: ', stderr);
+    // nothing is returned by this command, so the 'continueOnError' policy will be followed, and the
+    // the 'execerror' event will be fired
+});
+execPlan.add('./another_command_that_does_not_exist', function (error, stderr) {
+    // return true to signal that the plan should continue executing irrespective of 'continueOnError' policy;
+    // also, a return of true or false signals that the 'execerror' event should not fire.
+    return true;
+});
+execPlan.add('./yet_another_command_that_does_not_exist', function (error, stderr) {
+    // return false to signal that the plan should stop executing irrespective of 'continueOnError' policy;
+    // again, returning false signals that the 'execerror' event shoudl not fire.
+    return false;
+});
+
 execPlan.execute();
 ````
 
