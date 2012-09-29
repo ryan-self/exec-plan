@@ -98,9 +98,6 @@ var makeStep = function (execPlan, first, preLogic, command, options, errorHandl
         // continue execution plan, unless it should be stopped, as determined by, e.g.,
         // the error handler.
         shouldContinue = (!error || handleError(execPlan, error, stderr, errorHandler));
-
-        // BUG: the error handler is off by 1... the error handler should be passed in to
-        //      the next step instead. This could be tricky...
         if (shouldContinue) {
             preLogic(stdout);
             if (options === null) exec(command, nextStep);
