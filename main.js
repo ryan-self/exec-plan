@@ -24,12 +24,27 @@ var finish = function (execPlan) {
  * @param errorHandler Function
  *                       @param error Error
  *                       @param stderr String
+ * @return Boolean - whether the plan should continue to execute
  */
 var handleError = function (execPlan, error, stderr, errorHandler) {
-    if (!utils.isFunction(errorHandler) || (errorHandler(error, stderr) !== false)) {
-        // fire event if errorHandler allows us
+    var shouldContinue      = execPlan.continuesOnError(); // default to using configured policy
+    var errorHandlerDefined = utils.isFunction(errorHandler);
+    var errorHandlerReturn;
+    var shouldOverridePolicy; // whether the given error handler is overriding the
+                              // "continue on error" policy already set on the exec plan
+    
+    // determine whether the "continue on error" policy should be overridden by the given error
+    // error handler. this is determined by whether the given error handler returns either true
+    // or false. any other return, e.g., undefined, will signify that the policy should be used.
+    if (errorHandlerDefined) errorHandlerReturn = errorHandler(error, stderr);
+    shouldOverridePolicy = ((errorHandlerReturn === true) || (errorHandlerReturn === false));
+    if (shouldOverridePolicy) {
+        shouldContinue = errorHandlerReturn;
+    } else {  // not overriding the policy has the side-effect of allowing 'execerror' to fire
         execPlan.emit('execerror', error, stderr);
     }
+
+    return shouldContinue;
 };
 
 /**
@@ -72,19 +87,26 @@ var makeFinalFn = (function (execPlan, errorHandler) {
  */
 var makeStep = function (execPlan, first, preLogic, command, options, errorHandler, nextStep) {
     return function (error, stdout, stderr) {
+        var shouldContinue; // whether the plan should continue executing beyond this step
+
         // log stdout/err
         if (!first) {  // a previous step's stdout/err is available
             if (execPlan.willAutoPrintOut())           console.log(stdout);
             if (error && execPlan.willAutoPrintErr())  console.error(stderr);
         }
 
-        if (error) {  // error occurred during this step
-            handleError(execPlan, error, stderr, errorHandler);
-            finish(execPlan);
-        } else {  // this step successfully executed
+        // continue execution plan, unless it should be stopped, as determined by, e.g.,
+        // the error handler.
+        shouldContinue = (!error || handleError(execPlan, error, stderr, errorHandler));
+
+        // BUG: the error handler is off by 1... the error handler should be passed in to
+        //      the next step instead. This could be tricky...
+        if (shouldContinue) {
             preLogic(stdout);
             if (options === null) exec(command, nextStep);
             else                  exec(command, options, nextStep);
+        } else {
+            finish(execPlan);
         }
     };
 };
@@ -278,14 +300,13 @@ ExecPlan.prototype.execute = function () {
         if (idx < lastIdx) nextStep = steps[idx+1]; // use already created step
         else               nextStep = makeFinalFn(this, errorHandlers[idx]);
         steps[idx] = makeStep(this, (idx === 0), preLogic, command, execOpts,
-                errorHandlers[idx], nextStep);
+                // an individual step will process the previous steps error messages, but will
+                // point 'exec' to call the 'next step'; therefore, we need to account for that here
+                (idx === 0) ? emptyFn : errorHandlers[idx-1], nextStep);
     }
 
     // start the execution process
     steps[0]();
-
-    // return plan to empty state
-    this.plan = [];
 };
 
 /* --- DEBUG HELP --- */

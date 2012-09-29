@@ -222,7 +222,7 @@ exports.errorHandlers = {
         var execPlan = new ExecPlan({
             autoPrintOut: false, 
             autoPrintErr: false,
-            shouldContinueOnError: false
+            continueOnError: false
         });
         var errorHandlerSpy = sinon.spy();
         var secondCommandSpy = sinon.spy();
@@ -258,7 +258,7 @@ exports.errorHandlers = {
         var execPlan = new ExecPlan({
             autoPrintOut: false, 
             autoPrintErr: false, 
-            shouldContinueOnError: false
+            continueOnError: false
         });
         var errorHandlerSpy = sinon.spy();
         var secondCommandSpy = sinon.spy();
