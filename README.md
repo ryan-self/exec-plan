@@ -210,7 +210,13 @@ Public Actions
                 - **stderr** *String* - the stderr of the command.
             - The errorHandler function should return ```` false ```` if 'execerror' event should not be fired in
               addition to this errorHandler.
+- **continuesOnError** - states whether the general policy of the exec plan is to continue when errors occur.
+    - **return** Boolean
 - **execute** - executes all added commands in the order in which they were added.
     - This order will be enforced, such that each command will not execute until previous commands finish.
+- **willAutoPrintErr** - states whether stderr will be automatically printed to when errors occur.
+    - **return** Boolean
+- **willAutoPrintOut** - states whether stdout will be automatically printed to after a command executes.
+    - **return** Boolean
 
 
