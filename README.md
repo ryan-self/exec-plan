@@ -208,8 +208,10 @@ Public Actions
             - The errorHandler function should expect the following parameters:
                 - **error** *Error*   - js Error object that occurred during command execution.
                 - **stderr** *String* - the stderr of the command.
-            - The errorHandler function should return ```` false ```` if 'execerror' event should not be fired in
+            - The errorHandler function should return ````true```` or ```` false ```` if 'execerror' event should not be fired in
               addition to this errorHandler.
+            - If the errorHandler function returns ````true````, then the execution plan will continue executing, irrespective of "continueOnError" policy.
+            - If the errorHandler function returns ````false````, then the execution plan will stop executing, irrespective of "continueOnError" policy.
 - **continuesOnError** - states whether the general policy of the exec plan is to continue when errors occur.
     - **return** Boolean
 - **execute** - executes all added commands in the order in which they were added.
