@@ -133,17 +133,19 @@ Configuration
 
 - The constructor takes a configuration object that dictates various behaviors of the ExecPlan. The config object has
     the following properties:
-    - **[autoPrintOut]** Boolean <*default*: **true**> - whether to automatically print to stdout when a command
-                                                         finishes while an execution plan is executing.
-    - **[autoPrintErr]** Boolean <*default*: **true**> - whether to automatically print to stderr when a command
-                                                         has an error while an execution plan is executing.
+    - **[autoPrintOut]** Boolean <*default*: **true**>    - whether to automatically print to stdout when a command
+                                                            finishes while an execution plan is executing.
+    - **[autoPrintErr]** Boolean <*default*: **true**>    - whether to automatically print to stderr when a command
+                                                            has an error while an execution plan is executing.
+    - **[continueOnError]** Boolean <*default*: **true**> - whether to continue executing a plan if an error occurs in
+                                                            one of the the commands while the execution plan is executing.
 - Example Usage:
 <pre lang="javascript"><code>
 var ExecPlan = require('exec-plan').ExecPlan;
 var execPlan = new ExecPlan({
     autoPrintOut: false,  // don't automatically print stdout
-    autoPrintErr: true    // allow stderr to be automatically printed to;
-                          // NOTE: passing true to either option is not required, since it's the default.
+    autoPrintErr: true,   // allow stderr to be automatically printed to
+    continueOnError: true  // if an error occurs in a command in the execution plan, the plan should continue executing
 });
 </code></pre>
 
