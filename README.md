@@ -189,7 +189,7 @@ Events
       var execPlan = new ExecPlan();
 
       execPlan.on('finish', function () {
-          // provide any code that should be called whenever an execution plan is stops executing.
+          // provide any code that should be called whenever an execution plan stops executing.
       });
       ````
 
