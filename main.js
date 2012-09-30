@@ -260,7 +260,6 @@ ExecPlan.prototype.add = function (preLogic, command, options, errorHandler) {
 
 /**
  * Do the actual execution of the plan that has been set up before this point.
- * Once the plan has been executed, it will become an empty plan again, irrespective of error.
  */
 ExecPlan.prototype.execute = function () {
     var plan = this.plan, planLen, step, steps = [], idx, lastIdx;
