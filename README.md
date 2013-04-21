@@ -10,7 +10,7 @@ dreaded pyramid of doom (i.e., callback indentation) >.<
 Easy Install
 ------------
 
-    $ sudo npm install exec-plan
+    $ npm install exec-plan
 
 Install with package.json setup
 -------------------------------
@@ -30,7 +30,7 @@ Install with package.json setup
 }
 ````
 
-    $ sudo npm install
+    $ npm install
 - Note: this will install all dependencies for "my personal project" in "node_modules" folder
         below the project's root directory
 
